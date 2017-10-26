@@ -1,10 +1,10 @@
 import java.io.{FileOutputStream, OutputStreamWriter, PrintWriter}
 
-import StateMachine.{Event, State}
+import StateMachine.{Event, State, StateMachineDefinition}
 
 object StateMachineDescription {
 
-  def describeAsDotFile(stateMachine: Map[State, Map[Event, State]], name: String): Unit = {
+  def describeAsDotFile(stateMachine: StateMachineDefinition, name: String): Unit = {
     val out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(s"$name.gv")))
     try {
       out.print(describeAsDot(stateMachine, name))
@@ -13,13 +13,13 @@ object StateMachineDescription {
     }
   }
 
-  def describeAsDot(stateMachine: Map[State, Map[Event, State]], name: String): String = {
+  def describeAsDot(stateMachine: StateMachineDefinition, name: String): String = {
 
     def stateNode(state: State): String =
       s"""$state [label = "$state"];\n"""
 
-    def edge(initialState: State, event: Event, endState: State): String =
-      s"""$initialState -> $endState [label="$event", fontsize="10"];\n"""
+    def edge(initialState: State, event: Class[_ <: Event], endState: State): String =
+      s"""$initialState -> $endState [label="${event.getSimpleName}", fontsize="10"];\n"""
 
 
     val out = new StringBuilder
