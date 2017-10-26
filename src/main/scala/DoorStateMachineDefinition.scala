@@ -1,6 +1,6 @@
-import StateMachines.{Event, State}
+import StateMachine.{Event, State}
 
-object DoorStateMachine {
+object DoorStateMachineDefinition {
 
   case object New extends Event
   case object OpenDoorEvent extends Event
@@ -24,10 +24,12 @@ object DoorStateMachine {
       New -> ClosedState),
 
     ClosedState -> Map(
-      OpenDoorEvent -> OpenState),
+      OpenDoorEvent -> OpenState,
+      CloseDoorEvent -> ClosedState),
 
     OpenState -> Map(
-      CloseDoorEvent -> ClosedState
+      CloseDoorEvent -> ClosedState,
+      OpenDoorEvent -> OpenState
     )
   )
 

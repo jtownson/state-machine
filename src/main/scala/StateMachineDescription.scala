@@ -1,19 +1,19 @@
 import java.io.{FileOutputStream, OutputStreamWriter, PrintWriter}
 
-object StateMachines {
+import StateMachine.{Event, State}
 
-  trait Event
+object StateMachineDescription {
 
-  trait State {
-    def performEntryAction(): Unit = {}
+  def describeAsDotFile(stateMachine: Map[State, Map[Event, State]], name: String): Unit = {
+    val out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(s"$name.gv")))
+    try {
+      out.print(describeAsDot(stateMachine, name))
+    } finally {
+      out.close()
+    }
   }
 
-  // TODO get working then look at StateMachine = Map[Event, State] i.e. a partially applied lookup with current
-  // state applied
-  def transition(stateMachine: Map[State, Map[Event, State]], currentState: State, event: Event): State =
-    stateMachine(currentState)(event)
-
-  def describe(stateMachine: Map[State, Map[Event, State]], name: String): String = {
+  def describeAsDot(stateMachine: Map[State, Map[Event, State]], name: String): String = {
 
     def stateNode(state: State): String =
       s"""$state [label = "$state"];\n"""
@@ -36,14 +36,5 @@ object StateMachines {
 
     out.append("}\n")
     out.toString()
-  }
-
-  def write(stateMachine: Map[State, Map[Event, State]], name: String): Unit = {
-    val out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(s"$name.gv")))
-    try {
-      out.print(describe(stateMachine, name))
-    } finally {
-      out.close()
-    }
   }
 }

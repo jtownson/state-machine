@@ -1,24 +1,34 @@
 import org.scalatest.FlatSpec
-
 import org.scalatest.Matchers._
 
-import DoorStateMachine._
+import DoorStateMachineDefinition._
 
 class StateMachineSpec extends FlatSpec {
 
-  "State machine" should "provide next state" in {
-    doorStateTransitions(Start)(New) shouldBe ClosedState
-    doorStateTransitions(ClosedState)(OpenDoorEvent) shouldBe OpenState
-    doorStateTransitions(OpenState)(CloseDoorEvent) shouldBe ClosedState
+  "State machine" should "have nice transitions" in {
+
+    val s0 = StateMachine(doorStateTransitions, Start)
+    val s1 = s0.apply(New)
+    val s2 = s1.apply(OpenDoorEvent)
+
+    s0.state shouldBe Start
+    s1.state shouldBe ClosedState
+    s2.state shouldBe OpenState
+  }
+
+  it should "chain a series of events" in {
+
+    StateMachine(doorStateTransitions, Start).apply(New).apply(OpenDoorEvent).state shouldBe OpenState
   }
 
   it should "provide actions upon transition" in {
-    doorStateTransitions(Start)(New).performEntryAction()
-    doorStateTransitions(ClosedState)(OpenDoorEvent).performEntryAction()
-    doorStateTransitions(OpenState)(CloseDoorEvent).performEntryAction()
-  }
 
-  it should "document itself" in {
-    StateMachines.write(doorStateTransitions, "Doors")
+    val s0 = StateMachine(doorStateTransitions, Start)
+    val s1 = s0.apply(New)
+    val s2 = s1.apply(OpenDoorEvent)
+
+    s0.state.performEntryAction()
+    s1.state.performEntryAction()
+    s2.state.performEntryAction()
   }
 }
