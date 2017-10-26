@@ -1,0 +1,11 @@
+digraph Doors {
+node [shape = box, color = grey, fillcolor = "#A0A0FF", style = filled];
+Start [label = "Start"];
+ClosedState [label = "ClosedState"];
+OpenState [label = "OpenState"];
+Start -> ClosedState [label="New", fontsize="10"];
+ClosedState -> OpenState [label="OpenDoorEvent", fontsize="10"];
+ClosedState -> ClosedState [label="CloseDoorEvent", fontsize="10"];
+OpenState -> ClosedState [label="CloseDoorEvent", fontsize="10"];
+OpenState -> OpenState [label="OpenDoorEvent", fontsize="10"];
+}
