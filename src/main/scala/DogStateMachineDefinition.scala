@@ -1,11 +1,10 @@
-import StateMachine.{Event, State, StateMachineDefinition}
+import StateMachine.{EventType, State, StateMachineDefinition}
 
 object DogStateMachineDefinition {
 
-  case class New(dogName: String) extends Event
-  case class SeesSquirrel(dogName: String) extends Event
-  case class Waits(dogName: String) extends Event
-  case class GetsPetted(dogName: String) extends Event
+  case class SeesSquirrel(colour: String) extends EventType
+  case class Waits() extends EventType
+  case class GetsPetted() extends EventType
 
 
   case object Sitting extends State {
@@ -23,18 +22,23 @@ object DogStateMachineDefinition {
       println("Wagging tail")
   }
 
+  def not[T](predicate: T => Boolean): T => Boolean = !predicate(_)
+
+  val isGreySqirrel: EventType => Boolean = {
+    case SeesSquirrel(colour) => "grey" == colour
+  }
+
   val dogStateTransitions: StateMachineDefinition = Map(
 
     Sitting -> Map(
-      classOf[SeesSquirrel] -> Barking),
+      classOf[SeesSquirrel] -> Set((isGreySqirrel, Barking), (not(isGreySqirrel), Sitting))),
 
     Barking -> Map(
-      classOf[GetsPetted] -> WaggingTail),
+      classOf[GetsPetted] -> Set((_ => true, WaggingTail))),
 
     WaggingTail -> Map(
-      classOf[Waits] -> Barking,
-      classOf[GetsPetted] -> Sitting
-    )
+      classOf[Waits] -> Set((_ => true, Barking)),
+      classOf[GetsPetted] -> Set((_ => true, Sitting)))
   )
 
 }

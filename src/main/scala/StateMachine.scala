@@ -1,22 +1,28 @@
-import StateMachine.{Event, State, StateMachineDefinition}
+import StateMachine.{EventType, State, StateMachineDefinition, TransitionCondition}
 
 object StateMachine {
 
-  trait Event
+  trait EventType
 
   trait State {
     def performEntryAction(): Unit = {}
   }
 
-  type StateMachineDefinition = Map[State, Map[Class[_ <: Event], State]]
+  type TransitionCondition = EventType => Boolean
+
+  type StateMachineDefinition = Map[State, Map[Class[_ <: EventType], Set[(TransitionCondition, State)]]]
 }
 
 case class StateMachine(definition: StateMachineDefinition, state: State) {
-  val stateMachine: Map[Class[_ <: Event], State] = definition(state)
+  val allowableStates: Map[Class[_ <: EventType], Set[(TransitionCondition, State)]] = definition(state)
 
-  // Since state machine definitions are immutable maps,
-  // state transitions look like the application of ordinary functions
-  // so it's very pretty.
-  def apply(event: Event): StateMachine =
-    StateMachine(definition, stateMachine(event.getClass))
+  def apply(event: EventType): StateMachine = {
+
+    val transitionConditionApplies: ((TransitionCondition, State)) => Boolean =
+      {case (condition, _) => condition.apply(event)}
+
+    val (_, finalState) = allowableStates(event.getClass).find(transitionConditionApplies).getOrElse(???)
+
+    StateMachine(definition, finalState)
+  }
 }

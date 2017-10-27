@@ -1,6 +1,6 @@
 import java.io.{FileOutputStream, OutputStreamWriter, PrintWriter}
 
-import StateMachine.{Event, State, StateMachineDefinition}
+import StateMachine.{EventType, State, StateMachineDefinition, TransitionCondition}
 
 object StateMachineDescription {
 
@@ -18,7 +18,7 @@ object StateMachineDescription {
     def stateNode(state: State): String =
       s"""$state [label = "$state"];\n"""
 
-    def edge(initialState: State, event: Class[_ <: Event], endState: State): String =
+    def edge(initialState: State, event: Class[_ <: EventType], endState: State): String =
       s"""$initialState -> $endState [label="${event.getSimpleName}", fontsize="10"];\n"""
 
 
@@ -28,9 +28,9 @@ object StateMachineDescription {
 
     stateMachine.keys.foreach(state => out.append(stateNode(state)))
 
-    for ((initialState,eventTable) <- stateMachine) {
-      for ((event, endState) <- eventTable) {
-        out.append(edge(initialState, event, endState))
+    for ((initialState, eventTable) <- stateMachine) {
+      for ((eventType, endStates) <- eventTable) {
+        endStates.foreach({case (_, endState) => out.append(edge(initialState, eventType, endState))})
       }
     }
 

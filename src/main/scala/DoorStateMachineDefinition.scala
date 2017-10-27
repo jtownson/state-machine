@@ -1,11 +1,12 @@
-import DogStateMachineDefinition.New
-import StateMachine.{Event, State, StateMachineDefinition}
+import StateMachine.{EventType, State, StateMachineDefinition}
 
 object DoorStateMachineDefinition {
 
-  case class New() extends Event
-  case class OpenDoorEvent() extends Event
-  case class CloseDoorEvent() extends Event
+  case class NewEvent() extends EventType
+
+  case class OpenDoorEvent() extends EventType
+
+  case class CloseDoorEvent() extends EventType
 
   case object Start extends State
 
@@ -22,16 +23,15 @@ object DoorStateMachineDefinition {
   val doorStateTransitions: StateMachineDefinition = Map(
 
     Start -> Map(
-      classOf[New] -> ClosedState),
+      classOf[NewEvent] -> Set((_ => true, ClosedState))),
 
     ClosedState -> Map(
-      classOf[OpenDoorEvent] -> OpenState,
-      classOf[CloseDoorEvent] -> ClosedState),
+      classOf[OpenDoorEvent] -> Set((_ => true, OpenState)),
+      classOf[CloseDoorEvent] -> Set((_ => true, ClosedState))),
 
     OpenState -> Map(
-      classOf[CloseDoorEvent] -> ClosedState,
-      classOf[OpenDoorEvent] -> OpenState
-    )
+      classOf[CloseDoorEvent] -> Set((_ => true, ClosedState)),
+      classOf[OpenDoorEvent] -> Set((_ => true, OpenState)))
   )
 
 }
